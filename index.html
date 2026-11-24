@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b38">
+  <meta name="description" content="按通勤日历计算上海地铁和公交费用，比较四种计次票与普通支付，找到适合自己的乘车方案。">
+  <title>通勤账本 · 地铁费用规划</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="brand-icon" aria-hidden="true">M</span><span>通勤账本</span><span class="city">上海</span></div><a href="#rules">票价规则</a></header>
+  <main>
+    <section class="intro"><div><p class="eyebrow">每一程，都算清楚</p><h1>这个月，怎样坐更划算？</h1><p class="subtitle">选好通勤日期，比较地铁次卡与日常换乘的完整花费。</p></div><div class="save-state" id="saveState">设置保存在当前浏览器</div></section>
+    <div class="workspace">
+      <section class="panel settings"><div class="section-heading"><h2>我的通勤</h2><span class="subtle">单程票价</span></div>
+        <form id="settingsForm">
+          <label class="field">地铁票价<div class="money-input"><span>¥</span><input id="fare" aria-label="地铁单程票价" type="number" min="0.01" max="100" step="0.01" value="7" required><span>元 / 次</span></div></label>
+          <div class="field"><span>每天乘坐</span><div class="segments" role="group" aria-label="每天乘坐"><button type="button" data-round="true" class="active" aria-pressed="true">往返 2 次</button><button type="button" data-round="false" aria-pressed="false">单程 1 次</button></div></div>
+          <label class="field">去程换乘<select id="outbound"><option value="bus-metro">公交 → 地铁</option><option value="metro-bus">地铁 → 公交</option><option value="none">只坐地铁</option></select></label>
+          <label class="field" id="inboundField">回程换乘<select id="inbound"><option value="metro-bus">地铁 → 公交</option><option value="bus-metro">公交 → 地铁</option><option value="none">只坐地铁</option></select></label>
+          <label class="field" id="busField">公交票价<div class="money-input"><span>¥</span><input id="busFare" aria-label="公交单程票价" type="number" min="0" max="100" step="0.01" value="2" required><span>元 / 次</span></div></label>
+          <label class="checkbox" id="transferField"><input id="transferEnabled" type="checkbox" checked><span>换乘符合 1 元优惠条件</span></label>
+          <details class="advanced"><summary>更多计算设置</summary><div class="advanced-body">
+            <label class="field">选中首程前，当月地铁已累计金额<div class="money-input"><span>¥</span><input id="prior" type="number" min="0" max="100000" step="0.01" value="0" required></div></label>
+            <p class="hint">这里只影响折扣门槛，已花金额不加入本次预算。</p>
+            <label class="field">次卡激活日期<input id="activation" type="date"><span class="hint">留空时使用本月第一个选中日期。</span></label>
+            <label class="field">次卡有效期<select id="validityDays"><option value="31">含激活日共 31 天</option><option value="30">含激活日共 30 天</option></select></label>
+            <label class="field">公交转地铁的优惠顺序<select id="order"><option value="discount-first">先九折，再减换乘优惠</option><option value="transfer-first">先减换乘优惠，再九折</option></select></label>
+            <p class="hint">来源页面未明确叠加顺序。默认沿用先九折再减 1 元，可按支付渠道调整。</p>
+          </div></details>
+        </form>
+      </section>
+      <section class="panel calendar-panel"><div class="section-heading"><h2>通勤日历</h2><div class="month-controls"><button id="prevMonth" aria-label="上个月" type="button">‹</button><input id="month" aria-label="选择年份和月份" type="month" min="2026-01" max="2099-12"><button id="nextMonth" aria-label="下个月" type="button">›</button></div></div>
+        <div class="calendar-toolbar"><p>点选日期，安排本月出行</p><div><button class="text-button" id="workdays">恢复工作日</button><button class="text-button" id="clearDays">清空</button></div></div>
+        <div class="weekdays" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+        <div id="calendar" class="calendar" aria-label="通勤日期"></div>
+        <div class="calendar-foot"><div class="legend"><span><i></i>通勤日</span><span class="holiday-label">休 · 放假</span><span class="makeup-label">班 · 调休上班</span></div><span id="dayCount"></span></div>
+        <p id="holidayNote" class="hint"></p>
+      </section>
+    </div>
+    <section id="results" aria-live="polite" aria-busy="false">
+      <p id="error" class="notice" hidden></p><p id="policyNotice" class="notice" hidden></p>
+      <div class="recommendation"><div><p class="eyebrow">本月推荐</p><h2 id="bestName">正在计算</h2><p id="bestDescription"></p></div><div class="best-price"><span>预计总花费</span><strong id="bestTotal">—</strong><span id="bestSaving"></span></div></div>
+      <section class="panel comparison"><div class="section-heading"><h2>所有方案，一起比较</h2><span class="subtle" id="tripSummary"></span></div><p class="hint comparison-note">每种次卡按新购 1 张比较，自动安排次卡与普通支付。总价包含全部公交费用。</p>
+        <div class="table-wrap desktop-comparison"><table><thead><tr><th>乘车方案</th><th>购卡</th><th>普通地铁</th><th>公交</th><th>总费用</th><th>比普通支付</th><th>本月使用 / 余次</th></tr></thead><tbody id="comparisonRows"></tbody></table></div>
+        <div id="mobilePlans" class="mobile-plans"></div>
+        <p class="hint">余次可在卡有效期内继续使用。本次只预算所选月份，余次价值未抵扣购卡支出。</p>
+      </section>
+      <details class="panel daily"><summary><span>查看逐程乘车安排</span><span class="subtle">支付方式与费用明细</span></summary><div class="daily-body"><label class="field inline-field">查看方案<select id="detailPlan"></select></label><p class="hint">“次卡”行的地铁费用已包含在购卡价格中。普通支付需使用同一渠道累计。</p><div class="table-wrap"><table><thead><tr><th>日期 / 行程</th><th>支付方式</th><th>地铁</th><th>公交</th><th>地铁累计</th></tr></thead><tbody id="dailyRows"></tbody></table></div></div></details>
+    </section>
+    <details id="rules" class="panel rules"><summary><span>优惠规则与数据来源</span><span class="subtle">核对于 2026.11.24</span></summary><div class="rules-body">
+      <div class="rule-grid"><div><h3>满额与换乘优惠</h3><p>同一自然月、同一支付渠道，地铁实付累计满 90 元后，后续地铁票价九折。公交费用不计入门槛。换乘优惠按勾选状态计算。</p></div><div><h3>轨道交通计次票</h3><p>35 次 190 元 · 45 次 210 元<br>60 次 270 元 · 90 次 390 元</p><p>次卡乘车时，公交按原票价支付。次卡消费不计入满额优惠累计。</p></div></div>
+      <p>官方有效期文字为“激活当日及之后 30 个自然日”，默认按含激活日 31 天计算。适用于上海城轨线，适用范围以发行渠道为准。本工具不计算市域线、磁浮线或金山铁路的组合票价。</p>
+      <p>当前采用 2026 年 12 月 1 日起规则的已核对快照。后续政策变化请核对来源；此页面不会自动抓取政策变动。</p>
+      <div class="source-links"><a href="https://metroplatform.tenchii.com/web/fare-query/h5/index" target="_blank" rel="noopener">票价及次卡查询</a><a href="https://jtw.sh.gov.cn/zxzfxx/20261120/cf0d77dcb4414d5dbdc13b0edb455bba.html" target="_blank" rel="noopener">上海市交通委票价批复</a><a href="https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm" target="_blank" rel="noopener">2026 年放假安排</a><a href="https://chinajob.mohrss.gov.cn/h5/c/2026-11-09/635850.shtml" target="_blank" rel="noopener">2027 年放假安排</a><a href="https://onionmili.github.io/shmetro-calc/" target="_blank" rel="noopener">功能参考工具</a></div>
+    </div></details>
+    <footer>通勤账本<span>路线与日期保存在当前浏览器，可随时修改。</span></footer>
+  </main>
+  <a href="#results" class="mobile-result" id="mobileResult">查看费用对比</a>
+  <script type="module" src="./app.js"></script>
+</body></html>
