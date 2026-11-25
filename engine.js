@@ -7,9 +7,7 @@ export function ordinaryFare(trip, accumulated, settings) {
   let metro = cents(settings.fare);
   let bus = trip.mode === 'none' ? 0 : cents(settings.busFare);
   if (trip.mode === 'bus-metro') {
-    metro = settings.order === 'transfer-first'
-      ? Math.round(Math.max(0, metro - transfer) * discount)
-      : Math.max(0, Math.round(metro * discount) - transfer);
+    metro = Math.round(Math.max(0, metro - transfer) * discount);
   } else {
     metro = Math.round(metro * discount);
     bus = Math.max(0, bus - transfer);

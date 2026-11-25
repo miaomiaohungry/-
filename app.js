@@ -5,7 +5,7 @@ const $ = id => document.getElementById(id);
 const storageKey = 'metro-commute-planner-v1';
 const defaults = {fare:7,busFare:2,outbound:'bus-metro',inbound:'metro-bus',roundTrip:true,prior:0,
   transferEnabled:true,threshold:RULES.threshold,discount:RULES.discount,transfer:RULES.transfer,
-  activation:'',validityDays:31,order:'discount-first'};
+  activation:'',validityDays:31};
 const today = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit'}).formatToParts(new Date());
 const currentMonth = `${today.find(part => part.type === 'year').value}-${today.find(part => part.type === 'month').value}`;
 let month = currentMonth < '2026-12' ? '2026-12' : currentMonth;
@@ -28,7 +28,7 @@ try {
 const money = cents => '¥' + (cents / 100).toFixed(2);
 const planName = result => result.pack ? `${result.pack.rides} 次卡` : '普通支付';
 const numericFields = ['fare','busFare','prior','validityDays'];
-const settingsFields = [...numericFields,'outbound','inbound','activation','order'];
+const settingsFields = [...numericFields,'outbound','inbound','activation'];
 const transferModes = ['none','bus-metro','metro-bus'];
 function selectedDates() {
   const days = monthDays(month);
@@ -83,7 +83,6 @@ function validate() {
   if (!$('settingsForm').checkValidity()) return '请输入有效票价和日期。地铁票价须大于 0，金额保留至分。';
   if (!transferModes.includes(settings.outbound) || !transferModes.includes(settings.inbound)) return '请选择有效的公交换乘方向。';
   if (![30,31].includes(settings.validityDays)) return '请选择次卡有效期。';
-  if (!['discount-first','transfer-first'].includes(settings.order)) return '请选择优惠计算顺序。';
   if (settings.activation && !/^\d{4}-\d{2}-\d{2}$/.test(settings.activation)) return '请填写有效的激活日期。';
   return '';
 }

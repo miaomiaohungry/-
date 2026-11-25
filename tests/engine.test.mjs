@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import {compare, simulate, ordinaryFare, buildTrips, dayNumber} from '../dist/engine.js';
 import {RULES,monthDays,dayInfo} from '../dist/rules.js';
 const settings = {fare:7,busFare:2,outbound:'bus-metro',inbound:'metro-bus',roundTrip:true,prior:0,
-  transferEnabled:true,threshold:90,discount:.9,transfer:1,activation:'',validityDays:31,order:'discount-first'};
+  transferEnabled:true,threshold:90,discount:.9,transfer:1,activation:'',validityDays:31};
 const days = count => monthDays('2026-12').slice(0,count);
 
 test('18 / 19 round trip break-even and the 45th single ride', () => {
-  for (const [count,normal,card] of [[18,27260,28200],[19,28720,28600],[23,34560,30800]]) {
+  for (const [count,normal,card] of [[18,27370,28200],[19,28840,28600],[23,34720,30800]]) {
     const result = compare(days(count),settings,[RULES.packs[1]]);
     assert.equal(result.results[0].total,normal);
     assert.equal(result.results[1].total,card);
@@ -18,14 +18,14 @@ test('threshold uses actual metro spending and starts discount on the following 
   assert.equal(result.rows[13].accumulated,9100);
   assert.equal(result.rows[13].discounted,false);
   assert.equal(result.rows[14].discounted,true);
-  assert.equal(result.total,12660);
+  assert.equal(result.total,12670);
 });
 test('transfer order, missing bus, zero bus fare and initial spending', () => {
-  assert.equal(ordinaryFare({mode:'bus-metro'},9000,settings).metro,530);
-  assert.equal(ordinaryFare({mode:'bus-metro'},9000,{...settings,order:'transfer-first'}).metro,540);
+  assert.equal(ordinaryFare({mode:'bus-metro'},9000,settings).metro,540);
+  assert.equal(ordinaryFare({mode:'bus-metro'},9000,{...settings,order:'discount-first'}).metro,540);
   assert.deepEqual(ordinaryFare({mode:'none'},0,settings),{metro:700,bus:0});
   assert.deepEqual(ordinaryFare({mode:'metro-bus'},0,{...settings,busFare:0}),{metro:700,bus:0});
-  assert.equal(compare(days(1),{...settings,prior:90},[]).best.total,1460);
+  assert.equal(compare(days(1),{...settings,prior:90},[]).best.total,1470);
   assert.equal(compare(days(1),{...settings,transferEnabled:false},[]).best.total,1800);
 });
 test('zero days has zero regular cost and includes full purchase cost for each pass', () => {
@@ -50,9 +50,9 @@ test('holiday and makeup days', () => {
 });
 test('optimized paths match independent exhaustive enumeration of all payment choices', () => {
   // Small synthetic packs allow complete enumeration, including reaching the threshold mid-route.
-  for (const order of ['discount-first','transfer-first']) {
+  for (const transferEnabled of [true,false]) {
     for (const prior of [0,78,90]) {
-      const s = {...settings,order,prior,validityDays:30,activation:'2026-12-02'};
+      const s = {...settings,transferEnabled,prior,validityDays:30,activation:'2026-12-02'};
       const trips = buildTrips(days(5),s);
       const pack = {rides:4,price:15};
       let lowest = Infinity;

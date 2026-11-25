@@ -25,8 +25,7 @@
             <p class="hint">这里只影响折扣门槛，已花金额不加入本次预算。</p>
             <label class="field">次卡激活日期<input id="activation" type="date"><span class="hint">留空时使用本月第一个选中日期。</span></label>
             <label class="field">次卡有效期<select id="validityDays"><option value="31">含激活日共 31 天</option><option value="30">含激活日共 30 天</option></select></label>
-            <label class="field">公交转地铁的优惠顺序<select id="order"><option value="discount-first">先九折，再减换乘优惠</option><option value="transfer-first">先减换乘优惠，再九折</option></select></label>
-            <p class="hint">来源页面未明确叠加顺序。默认沿用先九折再减 1 元，可按支付渠道调整。</p>
+            <p class="hint">公交转地铁先减换乘优惠，达到满额后再打九折。例如地铁 7 元时，地铁实付为（7 − 1）× 0.9 = 5.40 元。</p>
           </div></details>
         </form>
       </section>
@@ -49,7 +48,7 @@
       <details class="panel daily"><summary><span>查看逐程乘车安排</span><span class="subtle">支付方式与费用明细</span></summary><div class="daily-body"><label class="field inline-field">查看方案<select id="detailPlan"></select></label><p class="hint">“次卡”行的地铁费用已包含在购卡价格中。普通支付需使用同一渠道累计。</p><div class="table-wrap"><table><thead><tr><th>日期 / 行程</th><th>支付方式</th><th>地铁</th><th>公交</th><th>地铁累计</th></tr></thead><tbody id="dailyRows"></tbody></table></div></div></details>
     </section>
     <details id="rules" class="panel rules"><summary><span>优惠规则与数据来源</span><span class="subtle">核对于 2026.11.24</span></summary><div class="rules-body">
-      <div class="rule-grid"><div><h3>满额与换乘优惠</h3><p>同一自然月、同一支付渠道，地铁实付累计满 90 元后，后续地铁票价九折。公交费用不计入门槛。换乘优惠按勾选状态计算。</p></div><div><h3>轨道交通计次票</h3><p>35 次 190 元 · 45 次 210 元<br>60 次 270 元 · 90 次 390 元</p><p>次卡乘车时，公交按原票价支付。次卡消费不计入满额优惠累计。</p></div></div>
+      <div class="rule-grid"><div><h3>满额与换乘优惠</h3><p>同一自然月、同一支付渠道，地铁实付累计满 90 元后，后续地铁票价九折。公交费用不计入门槛。公交转地铁先减换乘优惠再九折；地铁转公交时，换乘优惠扣在公交段。换乘优惠按勾选状态计算。</p></div><div><h3>轨道交通计次票</h3><p>35 次 190 元 · 45 次 210 元<br>60 次 270 元 · 90 次 390 元</p><p>次卡乘车时，公交按原票价支付。次卡消费不计入满额优惠累计。</p></div></div>
       <p>官方有效期文字为“激活当日及之后 30 个自然日”，默认按含激活日 31 天计算。适用于上海城轨线，适用范围以发行渠道为准。本工具不计算市域线、磁浮线或金山铁路的组合票价。</p>
       <p>当前采用 2026 年 12 月 1 日起规则的已核对快照。后续政策变化请核对来源；此页面不会自动抓取政策变动。</p>
       <div class="source-links"><a href="https://metroplatform.tenchii.com/web/fare-query/h5/index" target="_blank" rel="noopener">票价及次卡查询</a><a href="https://jtw.sh.gov.cn/zxzfxx/20261120/cf0d77dcb4414d5dbdc13b0edb455bba.html" target="_blank" rel="noopener">上海市交通委票价批复</a><a href="https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm" target="_blank" rel="noopener">2026 年放假安排</a><a href="https://chinajob.mohrss.gov.cn/h5/c/2026-11-09/635850.shtml" target="_blank" rel="noopener">2027 年放假安排</a><a href="https://onionmili.github.io/shmetro-calc/" target="_blank" rel="noopener">功能参考工具</a></div>
